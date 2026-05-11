@@ -1,3 +1,4 @@
 [build.environment]
+NPM_FLAGS = "--no-audit --no-fund --registry=https://registry.npmjs.org/ --userconfig=/opt/build/repo/.npmrc"
 NPM_CONFIG_REGISTRY = "https://registry.npmjs.org/"
 NPM_CONFIG_USERCONFIG = "/opt/build/repo/.npmrc"
