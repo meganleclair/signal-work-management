@@ -1,7 +1,7 @@
 import { INITIAL_SIGNALS } from "@/lib/seed-data";
 import type { Signal, SignalTag, TriageState, Workspace } from "@/lib/types";
 
-const STORAGE_KEY = "signal-signals-v4";
+const STORAGE_KEY = "signal-signals-v5";
 
 function isWorkspace(v: unknown): v is Workspace {
   return (
