@@ -83,8 +83,11 @@ Respond ONLY with a valid JSON object. No markdown, no explanation, just raw JSO
       messages: [{ role: "user", content: userMessage }],
     });
 
-    const text =
+    const raw =
       message.content[0].type === "text" ? message.content[0].text.trim() : "";
+
+    // Strip markdown code fences if Claude wraps the response.
+    const text = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
 
     const parsed = JSON.parse(text) as {
       urgency: unknown;
