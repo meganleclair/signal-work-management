@@ -117,7 +117,7 @@ export function SignalToolbar({
           onClick={onResetDemo}
         >
           <FaIcon icon={faRotateRight} className="size-3.5" />
-          Reset demo
+          Restore defaults
         </Button>
         <Button
           type="button"

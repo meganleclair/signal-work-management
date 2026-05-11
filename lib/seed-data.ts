@@ -2,6 +2,156 @@ import type { Signal } from "./types";
 
 /** Seed data: every workspace has multiple signals and mixed triage states. */
 export const INITIAL_SIGNALS: Signal[] = [
+  // ── Product ─────────────────────────────────────────────────────────────
+  {
+    id: "a1000000-0000-4000-8000-000000000030",
+    title: "Mobile crash spike — iOS 17.4 cold start",
+    why_it_matters:
+      "5% of iOS sessions are failing on cold start after last week's release; affects new-user activation and is climbing in App Store reviews.",
+    urgency: "critical",
+    suggested_owner: "Sam Okonkwo",
+    assignee: null,
+    triage_state: "needs_triage",
+    workspace: "product",
+    signal_tag: "product",
+    sources: [
+      { type: "slack", label: "#incidents" },
+      { type: "email", label: "crash-reports@internal" },
+    ],
+    related_inputs: [
+      {
+        snippet:
+          "Sentry shows NullPointerException in BootstrapActivity.onCreate — only on iOS 17.4 with background refresh disabled.",
+        from: "Engineering triage",
+        at: "Apr 12",
+      },
+      {
+        snippet: "Three 1-star reviews in 48h mentioning 'crashes on open.'",
+        from: "App Store monitor",
+        at: "Apr 12",
+      },
+    ],
+  },
+  {
+    id: "a1000000-0000-4000-8000-000000000031",
+    title: "Search relevance regression after last deploy",
+    why_it_matters:
+      "Power users are finding results from two releases ago ranking above current content; support volume up 12% this week.",
+    urgency: "high",
+    suggested_owner: "Jordan Lee",
+    assignee: null,
+    triage_state: "needs_triage",
+    workspace: "product",
+    signal_tag: "product",
+    sources: [
+      { type: "slack", label: "#search-feedback" },
+      { type: "doc", label: "Search quality log" },
+    ],
+    related_inputs: [
+      {
+        snippet:
+          "Relevance score weighting changed in the 4/9 deploy — looks like title boost was halved unintentionally.",
+        from: "Engineering standup",
+        at: "Apr 11",
+      },
+      {
+        snippet:
+          "Can we revert the ranking config without a full deploy? Flag is already in place.",
+        from: "Slack #search-feedback",
+        at: "Apr 11",
+      },
+    ],
+  },
+  {
+    id: "a1000000-0000-4000-8000-000000000032",
+    title: "Onboarding drop-off up 18% this week",
+    why_it_matters:
+      "Week-2 retention is the key activation metric for Q2; an 18-point delta on a single step needs investigation before it compounds.",
+    urgency: "high",
+    suggested_owner: "Alex Rivera",
+    assignee: null,
+    triage_state: "needs_triage",
+    workspace: "product",
+    signal_tag: "product",
+    sources: [
+      { type: "email", label: "analytics@internal" },
+      { type: "doc", label: "Activation dashboard" },
+    ],
+    related_inputs: [
+      {
+        snippet:
+          "Drop is concentrated at the 'connect your calendar' step — rate went from 61% to 43%.",
+        from: "Analytics weekly digest",
+        at: "Apr 11",
+      },
+      {
+        snippet:
+          "Calendar permission prompt changed UI copy in the 4/7 release — possible cause.",
+        from: "Release notes",
+        at: "Apr 7",
+      },
+    ],
+  },
+  {
+    id: "a1000000-0000-4000-8000-000000000033",
+    title: "Power users flagging new nav as harder to scan",
+    why_it_matters:
+      "Nav shipped two weeks ago; early adopter segment is the top churn risk if workflow disruption isn't addressed fast.",
+    urgency: "medium",
+    suggested_owner: "Alex Rivera",
+    assignee: "Alex Rivera",
+    triage_state: "assigned",
+    workspace: "product",
+    signal_tag: "product",
+    sources: [
+      { type: "form", label: "NPS follow-up (Typeform)" },
+      { type: "email", label: "success@company.com" },
+    ],
+    related_inputs: [
+      {
+        snippet:
+          "Seven responses in the last week mention 'can't find saved filters' or 'too many clicks to get to X.'",
+        from: "NPS qualitative",
+        at: "Apr 10",
+      },
+      {
+        snippet:
+          "One enterprise account asked if they can stay on old nav via flag.",
+        from: "CS email",
+        at: "Apr 9",
+      },
+    ],
+  },
+  {
+    id: "a1000000-0000-4000-8000-000000000034",
+    title: "API rate limit complaints from two integration partners",
+    why_it_matters:
+      "Both partners are in expansion conversations; perceived reliability issues block upsell.",
+    urgency: "high",
+    suggested_owner: "Jordan Lee",
+    assignee: "Jordan Lee",
+    triage_state: "assigned",
+    workspace: "product",
+    signal_tag: "product",
+    sources: [
+      { type: "email", label: "partners@integrations" },
+      { type: "slack", label: "#partner-escalations" },
+    ],
+    related_inputs: [
+      {
+        snippet:
+          "They're hitting the 429 limit on the /events endpoint during their nightly sync — burst limit too low for their batch size.",
+        from: "Partner email",
+        at: "Apr 10",
+      },
+      {
+        snippet:
+          "We could add a per-partner override; needs product + eng sign-off.",
+        from: "Platform eng Slack",
+        at: "Apr 11",
+      },
+    ],
+  },
   {
     id: "a1000000-0000-4000-8000-000000000001",
     title: "Enterprise renewal blocked on legal review",

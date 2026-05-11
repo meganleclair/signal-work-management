@@ -115,13 +115,10 @@ export function SignalFeed({
   return (
     <ScrollArea className="h-full min-h-0">
       <div className="flex flex-col gap-10 px-6 py-8 pb-20">
-        <header className="space-y-2">
+        <header className="space-y-1">
           <h1 className="text-xl font-semibold tracking-tight text-foreground">
             Incoming signals
           </h1>
-          <p className="max-w-xl text-sm leading-snug text-muted-foreground">
-            Focus on what needs attention now.
-          </p>
         </header>
 
         {empty ? (

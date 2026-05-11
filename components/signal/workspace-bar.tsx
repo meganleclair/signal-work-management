@@ -15,9 +15,6 @@ export function WorkspaceBar({ value, onChange }: Props) {
         <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/85">
           Workspace
         </p>
-        <p className="text-sm text-muted-foreground/90">
-          Choose where you&apos;re triaging right now.
-        </p>
       </div>
       <div
         className="flex flex-wrap gap-1 rounded-xl bg-sidebar-accent/60 p-1 ring-1 ring-sidebar-border"
