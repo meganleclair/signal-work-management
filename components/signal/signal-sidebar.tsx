@@ -7,7 +7,9 @@ import {
   faFilter,
   faInbox,
   faLayerGroup,
+  faMoon,
   faSignal,
+  faSun,
   faUserCheck,
   FaIcon,
   type FaIconDefinition,
@@ -16,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { useTheme } from "@/lib/use-theme";
 import type { SourceType, TriageView } from "@/lib/types";
 import { sourceLabel } from "@/components/signal/urgency-styles";
 import { cn } from "@/lib/utils";
@@ -47,10 +50,13 @@ export function SignalSidebar({
   allowedSources,
   onToggleSource,
 }: Props) {
+  const { dark, toggle } = useTheme();
+
   return (
-    <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-border/50 bg-sidebar text-sidebar-foreground lg:flex">
+    <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
+      {/* Brand */}
       <div className="flex items-center gap-2 px-4 py-5">
-        <span className="flex size-9 items-center justify-center rounded-xl bg-primary/5 ring-1 ring-foreground/10">
+        <span className="flex size-9 items-center justify-center rounded-xl bg-primary/8 ring-1 ring-foreground/10">
           <FaIcon icon={faSignal} className="size-4 text-primary" />
         </span>
         <div>
@@ -58,7 +64,10 @@ export function SignalSidebar({
           <p className="text-xs text-muted-foreground">Triage incoming work</p>
         </div>
       </div>
-      <Separator />
+
+      <Separator className="bg-sidebar-border" />
+
+      {/* Nav */}
       <ScrollArea className="min-h-0 flex-1">
         <nav className="flex flex-col gap-0.5 p-2">
           <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/85">
@@ -89,7 +98,9 @@ export function SignalSidebar({
             );
           })}
         </nav>
-        <Separator className="my-2" />
+
+        <Separator className="my-2 bg-sidebar-border" />
+
         <div className="px-2 pb-4">
           <p className="flex items-center gap-1.5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/85">
             <FaIcon icon={faFilter} className="size-3" />
@@ -116,6 +127,33 @@ export function SignalSidebar({
           </div>
         </div>
       </ScrollArea>
+
+      {/* User bar */}
+      <Separator className="bg-sidebar-border" />
+      <div className="flex items-center justify-between gap-2 px-3 py-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/12 text-[11px] font-semibold text-primary ring-1 ring-primary/20">
+            MF
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-xs font-medium text-sidebar-foreground">
+              Megan Flory
+            </p>
+            <p className="truncate text-[10px] text-muted-foreground">
+              Demo workspace
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={toggle}
+          className="shrink-0 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+          title={dark ? "Light mode" : "Dark mode"}
+        >
+          <FaIcon icon={dark ? faSun : faMoon} className="size-3.5" />
+        </button>
+      </div>
     </aside>
   );
 }
