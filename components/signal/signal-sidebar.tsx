@@ -8,7 +8,6 @@ import {
   faInbox,
   faLayerGroup,
   faMoon,
-  faSignal,
   faSun,
   faUserCheck,
   FaIcon,
@@ -55,13 +54,28 @@ export function SignalSidebar({
   return (
     <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
       {/* Brand */}
-      <div className="flex items-center gap-2 px-4 py-5">
-        <span className="flex size-9 items-center justify-center rounded-xl bg-primary/8 ring-1 ring-foreground/10">
-          <FaIcon icon={faSignal} className="size-4 text-primary" />
+      <div className="flex items-center gap-2.5 px-4 py-5">
+        {/* Vela logo mark — bold geometric V */}
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/8 ring-1 ring-foreground/10">
+          <svg
+            viewBox="0 0 24 24"
+            className="size-5 text-primary"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              fill="currentColor"
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M2 4 L22 4 L12 21 Z M7 4 L17 4 L12 17 Z"
+            />
+          </svg>
         </span>
         <div>
           <p className="text-sm font-semibold tracking-tight">Signal</p>
-          <p className="text-xs text-muted-foreground">Triage incoming work</p>
+          <p className="text-[10px] text-muted-foreground tracking-wide">
+            by <span className="font-medium text-muted-foreground/90">Vela</span>
+          </p>
         </div>
       </div>
 

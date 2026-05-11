@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   faArrowRotateLeft,
   faBolt,
   faClock,
   faEyeSlash,
+  faSparkles,
   faUserPlus,
+  faXmark,
   FaIcon,
 } from "@/components/ui/fa-icon";
 
@@ -20,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Signal } from "@/lib/types";
+import type { Signal, Urgency } from "@/lib/types";
 import {
   formatUrgencyLabel,
   signalTagLabel,
@@ -29,6 +31,7 @@ import {
   workspaceLabel,
 } from "@/components/signal/urgency-styles";
 import { cn } from "@/lib/utils";
+import type { TriageAssistResult } from "@/app/api/triage-assist/route";
 
 const TEAM = [
   "Alex Rivera",
@@ -37,6 +40,19 @@ const TEAM = [
   "Taylor Chen",
   "Morgan Patel",
 ];
+
+type AssistPhase =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "done"; result: TriageAssistResult }
+  | { kind: "error"; message: string };
+
+const URGENCY_ASSIST_COLORS: Record<Urgency, string> = {
+  critical: "border-red-500/40 bg-red-500/8 text-red-600 dark:text-red-400",
+  high: "border-orange-400/40 bg-orange-400/8 text-orange-600 dark:text-orange-400",
+  medium: "border-amber-400/40 bg-amber-400/8 text-amber-600 dark:text-amber-400",
+  low: "border-border/60 bg-muted/20 text-muted-foreground",
+};
 
 type Props = {
   signal: Signal | null;
@@ -91,8 +107,13 @@ export function SignalDetailPanel({
   onDefer,
   onIgnore,
 }: Props) {
-  /** Remember dropdown choice per signal id (no effect needed when switching cards). */
   const [assignPick, setAssignPick] = useState<Record<string, string>>({});
+  const [assist, setAssist] = useState<AssistPhase>({ kind: "idle" });
+
+  // Reset assist state when signal changes.
+  useEffect(() => {
+    setAssist({ kind: "idle" });
+  }, [signal?.id]);
 
   const defaultAssignee = useMemo(() => {
     if (!signal) return TEAM[0];
@@ -110,6 +131,36 @@ export function SignalDetailPanel({
     const raw = assignPick[signal.id] ?? defaultAssignee;
     return TEAM.includes(raw) ? raw : TEAM[0];
   }, [signal, assignPick, defaultAssignee]);
+
+  async function runAssist() {
+    if (!signal) return;
+    setAssist({ kind: "loading" });
+    try {
+      const res = await fetch("/api/triage-assist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ signal }),
+      });
+      if (!res.ok) {
+        const err = (await res.json()) as { error?: string };
+        throw new Error(err.error ?? "Request failed");
+      }
+      const result = (await res.json()) as TriageAssistResult;
+      setAssist({ kind: "done", result });
+      // Pre-fill assign dropdown with AI suggestion.
+      if (TEAM.includes(result.suggested_owner)) {
+        setAssignPick((prev) => ({
+          ...prev,
+          [signal.id]: result.suggested_owner,
+        }));
+      }
+    } catch (e) {
+      setAssist({
+        kind: "error",
+        message: e instanceof Error ? e.message : "Could not get suggestion.",
+      });
+    }
+  }
 
   if (!signal) {
     return (
@@ -131,6 +182,7 @@ export function SignalDetailPanel({
         "border-l border-border/45"
       )}
     >
+      {/* Header */}
       <div className="border-b border-border/50 px-5 py-5">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <h2 className="pr-2 text-base font-semibold leading-snug tracking-tight text-foreground">
@@ -163,6 +215,7 @@ export function SignalDetailPanel({
         </p>
       </div>
 
+      {/* Scrollable content */}
       <ScrollArea className="min-h-0 flex-1">
         <div className="space-y-6 px-5 py-5">
           <section className="space-y-2">
@@ -211,10 +264,117 @@ export function SignalDetailPanel({
               ))}
             </ul>
           </section>
+
+          {/* Triage Assist result card — lives in the scroll area */}
+          {assist.kind === "done" ? (
+            <section className="space-y-3">
+              <Separator className="bg-border/50" />
+              <div className="rounded-xl border border-primary/25 bg-primary/5 p-3.5 ring-1 ring-primary/10">
+                {/* Card header */}
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <FaIcon
+                      icon={faSparkles}
+                      className="size-3.5 text-primary"
+                    />
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-primary/80">
+                      Triage Assist
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAssist({ kind: "idle" })}
+                    className="rounded p-0.5 text-muted-foreground/60 transition-colors hover:text-foreground"
+                    aria-label="Dismiss suggestion"
+                  >
+                    <FaIcon icon={faXmark} className="size-3" />
+                  </button>
+                </div>
+
+                {/* Suggestions */}
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground/70 w-14 shrink-0">Urgency</span>
+                    <span
+                      className={cn(
+                        "rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                        URGENCY_ASSIST_COLORS[assist.result.urgency]
+                      )}
+                    >
+                      {formatUrgencyLabel(assist.result.urgency)}
+                    </span>
+                    {assist.result.urgency !== signal.urgency ? (
+                      <span className="text-[10px] text-muted-foreground/60">
+                        (currently {formatUrgencyLabel(signal.urgency)})
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground/60">
+                        (matches current)
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground/70 w-14 shrink-0">Owner</span>
+                    <span className="font-medium text-foreground/90">
+                      {assist.result.suggested_owner}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="mt-3 text-[12px] leading-relaxed text-foreground/80 border-t border-primary/10 pt-3">
+                  {assist.result.recommended_action}
+                </p>
+
+                <p className="mt-2 text-[10px] text-muted-foreground/55">
+                  Owner pre-filled in the assign field below.
+                </p>
+              </div>
+            </section>
+          ) : null}
         </div>
       </ScrollArea>
 
+      {/* Actions footer */}
       <div className="border-t border-border/50 bg-card/35 p-4">
+        {/* Triage Assist button — idle + loading + error states */}
+        {assist.kind !== "done" ? (
+          <div className="mb-3">
+            {assist.kind === "error" ? (
+              <div className="flex items-center justify-between gap-2 rounded-lg border border-destructive/30 bg-destructive/8 px-3 py-2">
+                <p className="text-[11px] text-destructive/90">{assist.message}</p>
+                <button
+                  type="button"
+                  onClick={() => void runAssist()}
+                  className="shrink-0 text-[11px] font-medium text-destructive underline-offset-2 hover:underline"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "w-full gap-2 border-primary/30 text-primary hover:border-primary/50 hover:bg-primary/5 hover:text-primary",
+                  assist.kind === "loading" && "opacity-70"
+                )}
+                disabled={assist.kind === "loading"}
+                onClick={() => void runAssist()}
+              >
+                <FaIcon
+                  icon={faSparkles}
+                  className={cn(
+                    "size-3.5",
+                    assist.kind === "loading" && "animate-pulse"
+                  )}
+                />
+                {assist.kind === "loading" ? "Thinking…" : "Triage Assist"}
+              </Button>
+            )}
+          </div>
+        ) : null}
+
         <p className={cn("mb-3", PANEL_LABEL)}>Actions</p>
         <div className="flex flex-col gap-2">
           <div className="space-y-1.5">
@@ -268,7 +428,7 @@ export function SignalDetailPanel({
                   Act now
                 </Button>
                 <p className="text-[11px] leading-snug text-muted-foreground/90">
-                  Confirms you’re acting on this. It moves to{" "}
+                  Confirms you're acting on this. It moves to{" "}
                   <span className="font-medium text-foreground/85">Resolved</span>.
                 </p>
               </>
