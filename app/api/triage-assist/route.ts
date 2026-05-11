@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import type { Signal, Urgency } from "@/lib/types";
 
@@ -63,13 +62,7 @@ Sources: ${sourcesText || "None"}
 Related context:
 ${inputsText || "None"}`;
 
-  try {
-    const client = new Anthropic({ apiKey });
-
-    const message = await client.messages.create({
-      model: "claude-haiku-4-5",
-      max_tokens: 300,
-      system: `You are a triage assistant for Signal, a work management tool used by Vela (a B2B SaaS workflow intelligence company). Analyze incoming signals and recommend how to act on them.
+  const SYSTEM_PROMPT = `You are a triage assistant for Signal, a work management tool used by Vela (a B2B SaaS workflow intelligence company). Analyze incoming signals and recommend how to act on them.
 
 Team roles:
 - Alex Rivera: Design Lead — UX, design system, onboarding flows
@@ -79,12 +72,33 @@ Team roles:
 - Morgan Patel: Product Manager — product strategy, roadmap priorities
 
 Respond ONLY with a valid JSON object. No markdown, no explanation, just raw JSON:
-{"urgency":"critical"|"high"|"medium"|"low","suggested_owner":"Alex Rivera"|"Jordan Lee"|"Sam Okonkwo"|"Taylor Chen"|"Morgan Patel","recommended_action":"2 concise sentences on the single most important first action the owner should take"}`,
-      messages: [{ role: "user", content: userMessage }],
+{"urgency":"critical"|"high"|"medium"|"low","suggested_owner":"Alex Rivera"|"Jordan Lee"|"Sam Okonkwo"|"Taylor Chen"|"Morgan Patel","recommended_action":"2 concise sentences on the single most important first action the owner should take"}`;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5",
+        max_tokens: 300,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: userMessage }],
+      }),
     });
 
-    const raw =
-      message.content[0].type === "text" ? message.content[0].text.trim() : "";
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "(no body)");
+      throw new Error(`Anthropic ${res.status}: ${errText}`);
+    }
+
+    const data = (await res.json()) as {
+      content: Array<{ type: string; text: string }>;
+    };
+    const raw = data.content[0]?.type === "text" ? data.content[0].text.trim() : "";
 
     // Strip markdown code fences if Claude wraps the response.
     const text = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
