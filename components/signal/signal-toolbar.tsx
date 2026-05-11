@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faDownload,
   faRotateRight,
   faSearch,
   faUpload,
   faXmark,
-} from "@fortawesome/free-solid-svg-icons";
+  FaIcon,
+} from "@/components/ui/fa-icon";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,7 +84,7 @@ export function SignalToolbar({
           className="gap-1.5"
           onClick={onExport}
         >
-          <FontAwesomeIcon icon={faDownload} className="size-3.5" />
+          <FaIcon icon={faDownload} className="size-3.5" />
           Export
         </Button>
         <Button
@@ -94,7 +94,7 @@ export function SignalToolbar({
           className="gap-1.5"
           onClick={() => fileRef.current?.click()}
         >
-          <FontAwesomeIcon icon={faUpload} className="size-3.5" />
+          <FaIcon icon={faUpload} className="size-3.5" />
           Import
         </Button>
         <input
@@ -116,7 +116,7 @@ export function SignalToolbar({
           className="gap-1.5"
           onClick={onResetDemo}
         >
-          <FontAwesomeIcon icon={faRotateRight} className="size-3.5" />
+          <FaIcon icon={faRotateRight} className="size-3.5" />
           Reset demo
         </Button>
         <Button
@@ -131,7 +131,7 @@ export function SignalToolbar({
               : "Search signals"
           }
         >
-          <FontAwesomeIcon icon={faSearch} className="size-3.5" />
+          <FaIcon icon={faSearch} className="size-3.5" />
         </Button>
       </div>
 
@@ -140,7 +140,7 @@ export function SignalToolbar({
           ref={overlayRef}
           className="absolute inset-x-6 inset-y-3 z-20 flex min-h-9 items-center gap-2 rounded-lg border border-border/60 bg-background/95 px-2 shadow-sm ring-1 ring-foreground/[0.06] backdrop-blur-sm dark:bg-background/98"
         >
-          <FontAwesomeIcon
+          <FaIcon
             icon={faSearch}
             className="ml-1 size-3.5 shrink-0 text-muted-foreground"
             aria-hidden
@@ -162,7 +162,7 @@ export function SignalToolbar({
             aria-label="Close search"
             onClick={() => setSearchOpen(false)}
           >
-            <FontAwesomeIcon icon={faXmark} className="size-3.5" />
+            <FaIcon icon={faXmark} className="size-3.5" />
           </Button>
         </div>
       ) : null}

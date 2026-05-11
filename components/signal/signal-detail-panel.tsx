@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRotateLeft,
   faBolt,
   faClock,
   faEyeSlash,
   faUserPlus,
-} from "@fortawesome/free-solid-svg-icons";
+  FaIcon,
+} from "@/components/ui/fa-icon";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -69,7 +69,7 @@ function ReturnButton({
         disabled={busy}
         onClick={onClick}
       >
-        <FontAwesomeIcon icon={faArrowRotateLeft} className="size-3.5" />
+        <FaIcon icon={faArrowRotateLeft} className="size-3.5" />
         {label}
       </Button>
       <p className="text-[11px] leading-snug text-muted-foreground/90">
@@ -264,7 +264,7 @@ export function SignalDetailPanel({
                   disabled={busy}
                   onClick={onActNow}
                 >
-                  <FontAwesomeIcon icon={faBolt} className="size-3.5" />
+                  <FaIcon icon={faBolt} className="size-3.5" />
                   Act now
                 </Button>
                 <p className="text-[11px] leading-snug text-muted-foreground/90">
@@ -276,7 +276,7 @@ export function SignalDetailPanel({
           </div>
           <div className="flex flex-col gap-2 rounded-xl border border-border/60 bg-muted/25 p-3">
             <div className="flex items-center gap-2">
-              <FontAwesomeIcon
+              <FaIcon
                 icon={faUserPlus}
                 className="size-3.5 text-muted-foreground"
               />
@@ -318,7 +318,7 @@ export function SignalDetailPanel({
               disabled={busy || signal.triage_state === "deferred"}
               onClick={onDefer}
             >
-              <FontAwesomeIcon icon={faClock} className="size-3.5" />
+              <FaIcon icon={faClock} className="size-3.5" />
               Defer
             </Button>
             <Button
@@ -328,7 +328,7 @@ export function SignalDetailPanel({
               disabled={busy || signal.triage_state === "ignored"}
               onClick={onIgnore}
             >
-              <FontAwesomeIcon icon={faEyeSlash} className="size-3.5" />
+              <FaIcon icon={faEyeSlash} className="size-3.5" />
               Ignore
             </Button>
           </div>

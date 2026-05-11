@@ -1,6 +1,5 @@
 "use client";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleCheck,
   faClock,
@@ -10,7 +9,9 @@ import {
   faLayerGroup,
   faSignal,
   faUserCheck,
-} from "@fortawesome/free-solid-svg-icons";
+  FaIcon,
+  type FaIconDefinition,
+} from "@/components/ui/fa-icon";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -19,7 +20,7 @@ import type { SourceType, TriageView } from "@/lib/types";
 import { sourceLabel } from "@/components/signal/urgency-styles";
 import { cn } from "@/lib/utils";
 
-const VIEWS: { id: TriageView; label: string; icon: typeof faLayerGroup }[] = [
+const VIEWS: { id: TriageView; label: string; icon: FaIconDefinition }[] = [
   { id: "all", label: "All", icon: faLayerGroup },
   { id: "needs_triage", label: "Needs triage", icon: faInbox },
   { id: "assigned", label: "Assigned", icon: faUserCheck },
@@ -50,7 +51,7 @@ export function SignalSidebar({
     <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-border/50 bg-sidebar text-sidebar-foreground lg:flex">
       <div className="flex items-center gap-2 px-4 py-5">
         <span className="flex size-9 items-center justify-center rounded-xl bg-primary/5 ring-1 ring-foreground/10">
-          <FontAwesomeIcon icon={faSignal} className="size-4 text-primary" />
+          <FaIcon icon={faSignal} className="size-4 text-primary" />
         </span>
         <div>
           <p className="text-sm font-semibold tracking-tight">Signal</p>
@@ -76,7 +77,7 @@ export function SignalSidebar({
                 )}
                 onClick={() => onViewChange(v.id)}
               >
-                <FontAwesomeIcon
+                <FaIcon
                   icon={v.icon}
                   className="size-3.5 text-muted-foreground"
                 />
@@ -91,7 +92,7 @@ export function SignalSidebar({
         <Separator className="my-2" />
         <div className="px-2 pb-4">
           <p className="flex items-center gap-1.5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/85">
-            <FontAwesomeIcon icon={faFilter} className="size-3" />
+            <FaIcon icon={faFilter} className="size-3" />
             Source filters
           </p>
           <div className="flex flex-col gap-1">

@@ -1,14 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRotateLeft,
   faBolt,
   faClock,
   faEyeSlash,
   faXmark,
-} from "@fortawesome/free-solid-svg-icons";
+  FaIcon,
+} from "@/components/ui/fa-icon";
 
 import type { FeedEmptyInfo } from "@/components/signal/signal-feed";
 import { SignalSidebar } from "@/components/signal/signal-sidebar";
@@ -72,7 +72,7 @@ function SignalTriageActions({
             afterAction?.();
           }}
         >
-          <FontAwesomeIcon icon={faBolt} className="size-3.5" />
+          <FaIcon icon={faBolt} className="size-3.5" />
           Act now
         </Button>
       ) : (
@@ -86,7 +86,7 @@ function SignalTriageActions({
             afterAction?.();
           }}
         >
-          <FontAwesomeIcon icon={faArrowRotateLeft} className="size-3.5" />
+          <FaIcon icon={faArrowRotateLeft} className="size-3.5" />
           Return to triage
         </Button>
       )}
@@ -101,7 +101,7 @@ function SignalTriageActions({
             afterAction?.();
           }}
         >
-          <FontAwesomeIcon icon={faClock} className="size-3.5" />
+          <FaIcon icon={faClock} className="size-3.5" />
           Defer
         </Button>
         <Button
@@ -114,7 +114,7 @@ function SignalTriageActions({
             afterAction?.();
           }}
         >
-          <FontAwesomeIcon icon={faEyeSlash} className="size-3.5" />
+          <FaIcon icon={faEyeSlash} className="size-3.5" />
           Ignore
         </Button>
       </div>
@@ -451,7 +451,7 @@ export function SignalWorkspace() {
             className="gap-1.5"
             onClick={() => void handleUndo()}
           >
-            <FontAwesomeIcon icon={faArrowRotateLeft} className="size-3.5" />
+            <FaIcon icon={faArrowRotateLeft} className="size-3.5" />
             Undo
           </Button>
         </div>
@@ -562,7 +562,7 @@ export function SignalWorkspace() {
                 className="mt-0.5 shrink-0 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 aria-label="Close"
               >
-                <FontAwesomeIcon icon={faXmark} className="size-4" />
+                <FaIcon icon={faXmark} className="size-4" />
               </button>
             </div>
 
