@@ -2,7 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRotateLeft } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowRotateLeft,
+  faBolt,
+  faClock,
+  faEyeSlash,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 
 import type { FeedEmptyInfo } from "@/components/signal/signal-feed";
 import { SignalSidebar } from "@/components/signal/signal-sidebar";
@@ -10,6 +16,7 @@ import { SignalFeed } from "@/components/signal/signal-feed";
 import { SignalDetailPanel } from "@/components/signal/signal-detail-panel";
 import { SignalToolbar } from "@/components/signal/signal-toolbar";
 import { WorkspaceBar } from "@/components/signal/workspace-bar";
+import { sourceLabel } from "@/components/signal/urgency-styles";
 import { Button } from "@/components/ui/button";
 import {
   filterBySearchQuery,
@@ -41,11 +48,17 @@ export function SignalWorkspace() {
     ...SOURCE_TYPE_ORDER,
   ]);
   const [lastUndo, setLastUndo] = useState<{ snapshot: Signal } | null>(null);
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
   const signalsRef = useRef<Signal[]>([]);
   useEffect(() => {
     signalsRef.current = signals;
   }, [signals]);
+
+  // Close mobile sheet if the selected signal disappears from the filtered list.
+  useEffect(() => {
+    if (!selectedId) setMobileSheetOpen(false);
+  }, [selectedId]);
 
   const workspaceLabel =
     WORKSPACES.find((w) => w.id === workspace)?.label ?? workspace;
@@ -182,6 +195,68 @@ export function SignalWorkspace() {
     []
   );
 
+  // ── Named action handlers — shared by desktop detail panel + mobile sheet ──
+
+  const handleActNow = useCallback(() => {
+    if (!selected) return;
+    const viewBefore = view;
+    void runAction(
+      selected.id,
+      () => setTriageState(selected.id, "resolved", null),
+      (updated) => {
+        if (viewBefore === "needs_triage") {
+          setView("resolved");
+          setSelectedId(updated.id);
+        }
+      }
+    );
+  }, [selected, view, runAction]);
+
+  const handleReturnToNeedsTriage = useCallback(() => {
+    if (!selected) return;
+    const viewBefore = view;
+    void runAction(
+      selected.id,
+      () => setTriageState(selected.id, "needs_triage", null),
+      (updated) => {
+        if (
+          viewBefore === "resolved" ||
+          viewBefore === "ignored" ||
+          viewBefore === "deferred"
+        ) {
+          setView("needs_triage");
+          setSelectedId(updated.id);
+        }
+      }
+    );
+  }, [selected, view, runAction]);
+
+  const handleAssign = useCallback(
+    (assignee: string) => {
+      if (!selected) return;
+      void runAction(selected.id, () =>
+        setTriageState(selected.id, "assigned", assignee)
+      );
+    },
+    [selected, runAction]
+  );
+
+  const handleDefer = useCallback(() => {
+    if (!selected) return;
+    void runAction(selected.id, () =>
+      setTriageState(selected.id, "deferred", null)
+    );
+  }, [selected, runAction]);
+
+  const handleIgnore = useCallback(() => {
+    if (!selected) return;
+    void runAction(selected.id, () =>
+      setTriageState(selected.id, "ignored", null)
+    );
+  }, [selected, runAction]);
+
+  // ────────────────────────────────────────────────────────────────────────────
+
   const handleUndo = useCallback(async () => {
     if (!lastUndo) return;
     setError(null);
@@ -267,6 +342,12 @@ export function SignalWorkspace() {
     }
   }, []);
 
+  /** Selects a signal and opens the mobile bottom sheet. */
+  const handleSelect = useCallback((id: string) => {
+    setSelectedId(id);
+    setMobileSheetOpen(true);
+  }, []);
+
   return (
     <div className="flex h-screen flex-col bg-background text-foreground">
       {error ? (
@@ -290,7 +371,7 @@ export function SignalWorkspace() {
           </Button>
         </div>
       ) : null}
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         <SignalSidebar
           view={view}
           onViewChange={setView}
@@ -318,7 +399,7 @@ export function SignalWorkspace() {
                   workspace={workspace}
                   signals={filtered}
                   selectedId={selectedId}
-                  onSelect={setSelectedId}
+                  onSelect={handleSelect}
                   emptyInfo={emptyInfo}
                 />
               </div>
@@ -328,58 +409,144 @@ export function SignalWorkspace() {
         <SignalDetailPanel
           signal={selected}
           busy={busyId === selected?.id}
-          onActNow={() => {
-            if (!selected) return;
-            const viewBefore = view;
-            void runAction(
-              selected.id,
-              () => setTriageState(selected.id, "resolved", null),
-              (updated) => {
-                if (viewBefore === "needs_triage") {
-                  setView("resolved");
-                  setSelectedId(updated.id);
-                }
-              }
-            );
-          }}
-          onReturnToNeedsTriage={() => {
-            if (!selected) return;
-            const viewBefore = view;
-            void runAction(
-              selected.id,
-              () => setTriageState(selected.id, "needs_triage", null),
-              (updated) => {
-                if (
-                  viewBefore === "resolved" ||
-                  viewBefore === "ignored" ||
-                  viewBefore === "deferred"
-                ) {
-                  setView("needs_triage");
-                  setSelectedId(updated.id);
-                }
-              }
-            );
-          }}
-          onAssign={(assignee) => {
-            if (!selected) return;
-            void runAction(selected.id, () =>
-              setTriageState(selected.id, "assigned", assignee)
-            );
-          }}
-          onDefer={() => {
-            if (!selected) return;
-            void runAction(selected.id, () =>
-              setTriageState(selected.id, "deferred", null)
-            );
-          }}
-          onIgnore={() => {
-            if (!selected) return;
-            void runAction(selected.id, () =>
-              setTriageState(selected.id, "ignored", null)
-            );
-          }}
+          onActNow={handleActNow}
+          onReturnToNeedsTriage={handleReturnToNeedsTriage}
+          onAssign={handleAssign}
+          onDefer={handleDefer}
+          onIgnore={handleIgnore}
         />
       </div>
+
+      {/* ── Mobile bottom sheet ─────────────────────────────────────────────
+          Shown only on screens < md. Slides up when a signal card is tapped.
+          The desktop detail panel (hidden md:flex) takes over at md+.        */}
+      {mobileSheetOpen && selected ? (
+        <div
+          className="fixed inset-0 z-50 flex flex-col justify-end bg-foreground/20 backdrop-blur-sm md:hidden"
+          onClick={() => setMobileSheetOpen(false)}
+        >
+          <div
+            className="max-h-[88vh] overflow-y-auto rounded-t-2xl bg-background ring-1 ring-border/50"
+            style={{ boxShadow: "0 -8px 40px rgba(0,0,0,0.12)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Drag handle */}
+            <div className="flex justify-center py-3">
+              <div className="h-1 w-10 rounded-full bg-border/60" />
+            </div>
+
+            {/* Header */}
+            <div className="flex items-start justify-between gap-3 border-b border-border/40 px-5 pb-4">
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  {selected.urgency}
+                </p>
+                <h2 className="mt-0.5 text-[17px] font-semibold leading-snug tracking-tight text-foreground">
+                  {selected.title}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileSheetOpen(false)}
+                className="mt-0.5 shrink-0 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Close"
+              >
+                <FontAwesomeIcon icon={faXmark} className="size-4" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="space-y-4 px-5 py-5">
+              <p className="text-sm leading-relaxed text-foreground/88">
+                {selected.why_it_matters}
+              </p>
+              {selected.sources.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {selected.sources.map((src, i) => (
+                    <span
+                      key={`mob-${selected.id}-${i}`}
+                      className="inline-flex items-center rounded-md border border-border/45 bg-muted/25 px-2 py-0.5 text-[11px] font-medium text-foreground/80"
+                    >
+                      {sourceLabel(src.type)}
+                      <span className="ml-1 opacity-70">· {src.label}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-col gap-2 border-t border-border/40 px-5 py-4 pb-8">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/85">
+                Actions
+              </p>
+              {selected.triage_state === "needs_triage" ||
+              selected.triage_state === "assigned" ? (
+                <Button
+                  type="button"
+                  className="justify-start gap-2"
+                  disabled={busyId === selected.id}
+                  onClick={() => {
+                    handleActNow();
+                    setMobileSheetOpen(false);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faBolt} className="size-3.5" />
+                  Act now
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="justify-start gap-2"
+                  disabled={busyId === selected.id}
+                  onClick={() => {
+                    handleReturnToNeedsTriage();
+                    setMobileSheetOpen(false);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faArrowRotateLeft} className="size-3.5" />
+                  Return to triage
+                </Button>
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-2"
+                  disabled={
+                    busyId === selected.id ||
+                    selected.triage_state === "deferred"
+                  }
+                  onClick={() => {
+                    handleDefer();
+                    setMobileSheetOpen(false);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faClock} className="size-3.5" />
+                  Defer
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-2"
+                  disabled={
+                    busyId === selected.id ||
+                    selected.triage_state === "ignored"
+                  }
+                  onClick={() => {
+                    handleIgnore();
+                    setMobileSheetOpen(false);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faEyeSlash} className="size-3.5" />
+                  Ignore
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

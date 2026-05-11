@@ -86,7 +86,7 @@ export function SignalDetailPanel({
 
   if (!signal) {
     return (
-      <aside className="flex h-full w-[380px] shrink-0 flex-col border-l border-border/50 bg-card/20">
+      <aside className="hidden h-full w-[320px] shrink-0 flex-col border-l border-border/50 bg-card/20 md:flex lg:w-[380px]">
         <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
           <p className="text-sm font-medium text-foreground">No signal selected</p>
           <p className="text-sm text-muted-foreground">
@@ -100,7 +100,7 @@ export function SignalDetailPanel({
   return (
     <aside
       className={cn(
-        "flex h-full w-[380px] shrink-0 flex-col bg-card/25",
+        "hidden h-full w-[320px] shrink-0 flex-col bg-card/25 md:flex lg:w-[380px]",
         "border-l border-border/45"
       )}
     >

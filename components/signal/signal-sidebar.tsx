@@ -47,7 +47,7 @@ export function SignalSidebar({
   onToggleSource,
 }: Props) {
   return (
-    <aside className="flex h-full w-60 shrink-0 flex-col border-r border-border/50 bg-sidebar text-sidebar-foreground">
+    <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-border/50 bg-sidebar text-sidebar-foreground lg:flex">
       <div className="flex items-center gap-2 px-4 py-5">
         <span className="flex size-9 items-center justify-center rounded-xl bg-primary/5 ring-1 ring-foreground/10">
           <FontAwesomeIcon icon={faSignal} className="size-4 text-primary" />
