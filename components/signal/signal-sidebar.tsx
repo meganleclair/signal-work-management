@@ -8,6 +8,7 @@ import {
   faInbox,
   faLayerGroup,
   faMoon,
+  faSignal,
   faSun,
   faUserCheck,
   FaIcon,
@@ -55,27 +56,12 @@ export function SignalSidebar({
     <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
       {/* Brand */}
       <div className="flex items-center gap-2.5 px-4 py-5">
-        {/* Vela logo mark — bold geometric V */}
         <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/8 ring-1 ring-foreground/10">
-          <svg
-            viewBox="0 0 24 24"
-            className="size-5 text-primary"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <path
-              fill="currentColor"
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M2 4 L22 4 L12 21 Z M7 4 L17 4 L12 17 Z"
-            />
-          </svg>
+          <FaIcon icon={faSignal} className="size-4 text-primary" />
         </span>
         <div>
           <p className="text-sm font-semibold tracking-tight">Signal</p>
-          <p className="text-[10px] text-muted-foreground tracking-wide">
-            by <span className="font-medium text-muted-foreground/90">Vela</span>
-          </p>
+          <p className="text-xs text-muted-foreground">Triage incoming work</p>
         </div>
       </div>
 
@@ -146,15 +132,28 @@ export function SignalSidebar({
       <Separator className="bg-sidebar-border" />
       <div className="flex items-center justify-between gap-2 px-3 py-3">
         <div className="flex min-w-0 items-center gap-2.5">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/12 text-[11px] font-semibold text-primary ring-1 ring-primary/20">
-            MF
+          {/* Vela company logo mark */}
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 ring-1 ring-primary/20">
+            <svg
+              viewBox="0 0 24 24"
+              className="size-3.5 text-primary"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                fill="currentColor"
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M2 4 L22 4 L12 21 Z M7 4 L17 4 L12 17 Z"
+              />
+            </svg>
           </span>
           <div className="min-w-0">
             <p className="truncate text-xs font-medium text-sidebar-foreground">
               Megan Flory
             </p>
             <p className="truncate text-[10px] text-muted-foreground">
-              Demo workspace
+              Vela
             </p>
           </div>
         </div>
