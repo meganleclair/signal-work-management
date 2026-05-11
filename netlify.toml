@@ -1,6 +1,3 @@
 [build.environment]
 NPM_CONFIG_REGISTRY = "https://registry.npmjs.org/"
 NPM_CONFIG_USERCONFIG = "/opt/build/repo/.npmrc"
-NPM_CONFIG_ALWAYS_AUTH = "false"
-NPM_TOKEN = ""
-NODE_AUTH_TOKEN = ""
