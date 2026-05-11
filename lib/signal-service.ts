@@ -3,25 +3,42 @@ import type { Signal, SignalTag, TriageState, Workspace } from "@/lib/types";
 
 const STORAGE_KEY = "signal-signals-v3";
 
+function isWorkspace(v: unknown): v is Workspace {
+  return (
+    v === "product" ||
+    v === "legal" ||
+    v === "design" ||
+    v === "operations" ||
+    v === "sales"
+  );
+}
+
+function isSignalTag(v: unknown): v is SignalTag {
+  return v === "product" || v === "legal" || v === "design";
+}
+
+export function hydrateSignals(list: unknown[]): Signal[] {
+  return list.map((item) => {
+    const s = item as Record<string, unknown>;
+    return {
+      ...(s as object),
+      workspace: isWorkspace(s.workspace) ? s.workspace : "product",
+      signal_tag: isSignalTag(s.signal_tag) ? s.signal_tag : "product",
+      sources: Array.isArray(s.sources) ? s.sources : [],
+      related_inputs: Array.isArray(s.related_inputs) ? s.related_inputs : [],
+    } as Signal;
+  });
+}
+
 function parseSignals(raw: string | null): Signal[] | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return null;
-    return hydrateSignals(parsed as Signal[]);
+    return hydrateSignals(parsed);
   } catch {
     return null;
   }
-}
-
-export function hydrateSignals(list: Signal[]): Signal[] {
-  return list.map((s) => ({
-    ...s,
-    workspace: (s.workspace as Workspace | undefined) ?? "product",
-    signal_tag: (s.signal_tag as SignalTag | undefined) ?? "product",
-    sources: Array.isArray(s.sources) ? s.sources : [],
-    related_inputs: Array.isArray(s.related_inputs) ? s.related_inputs : [],
-  }));
 }
 
 function readLocalSignals(): Signal[] {
@@ -53,9 +70,13 @@ export type SignalPatch = Partial<
 >;
 
 function compactPatch(patch: SignalPatch): SignalPatch {
-  return Object.fromEntries(
-    Object.entries(patch).filter(([, v]) => v !== undefined)
-  ) as SignalPatch;
+  const result: SignalPatch = {};
+  if (patch.triage_state !== undefined) result.triage_state = patch.triage_state;
+  if (patch.assignee !== undefined) result.assignee = patch.assignee;
+  if (patch.suggested_owner !== undefined) result.suggested_owner = patch.suggested_owner;
+  if (patch.urgency !== undefined) result.urgency = patch.urgency;
+  if (patch.why_it_matters !== undefined) result.why_it_matters = patch.why_it_matters;
+  return result;
 }
 
 export async function updateSignal(

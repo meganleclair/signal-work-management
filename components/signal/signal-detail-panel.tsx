@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRotateLeft,
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import type { Signal } from "@/lib/types";
 import {
+  formatUrgencyLabel,
   signalTagLabel,
   sourceClasses,
   sourceLabel,
@@ -48,8 +49,34 @@ type Props = {
   onIgnore: () => void;
 };
 
-function formatUrgency(u: string): string {
-  return u.charAt(0).toUpperCase() + u.slice(1);
+function ReturnButton({
+  label,
+  description,
+  busy,
+  onClick,
+}: {
+  label: string;
+  description: React.ReactNode;
+  busy: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <>
+      <Button
+        type="button"
+        variant="secondary"
+        className="justify-start gap-2"
+        disabled={busy}
+        onClick={onClick}
+      >
+        <FontAwesomeIcon icon={faArrowRotateLeft} className="size-3.5" />
+        {label}
+      </Button>
+      <p className="text-[11px] leading-snug text-muted-foreground/90">
+        {description}
+      </p>
+    </>
+  );
 }
 
 const PANEL_LABEL =
@@ -110,7 +137,7 @@ export function SignalDetailPanel({
             {signal.title}
           </h2>
           <span className="shrink-0 rounded-md border border-border/40 bg-muted/20 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            {formatUrgency(signal.urgency)}
+            {formatUrgencyLabel(signal.urgency)}
           </span>
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground/85">
@@ -192,65 +219,43 @@ export function SignalDetailPanel({
         <div className="flex flex-col gap-2">
           <div className="space-y-1.5">
             {signal.triage_state === "resolved" ? (
-              <>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="justify-start gap-2"
-                  disabled={busy}
-                  onClick={onReturnToNeedsTriage}
-                >
-                  <FontAwesomeIcon icon={faArrowRotateLeft} className="size-3.5" />
-                  Mark as unresolved
-                </Button>
-                <p className="text-[11px] leading-snug text-muted-foreground/90">
-                  Sends this back to{" "}
-                  <span className="font-medium text-foreground/85">
-                    Needs triage
-                  </span>{" "}
-                  if you still need to track it.
-                </p>
-              </>
+              <ReturnButton
+                label="Mark as unresolved"
+                busy={busy}
+                onClick={onReturnToNeedsTriage}
+                description={
+                  <>
+                    Sends this back to{" "}
+                    <span className="font-medium text-foreground/85">Needs triage</span>{" "}
+                    if you still need to track it.
+                  </>
+                }
+              />
             ) : signal.triage_state === "ignored" ? (
-              <>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="justify-start gap-2"
-                  disabled={busy}
-                  onClick={onReturnToNeedsTriage}
-                >
-                  <FontAwesomeIcon icon={faArrowRotateLeft} className="size-3.5" />
-                  Stop ignoring
-                </Button>
-                <p className="text-[11px] leading-snug text-muted-foreground/90">
-                  Brings this back into{" "}
-                  <span className="font-medium text-foreground/85">
-                    Needs triage
-                  </span>{" "}
-                  so it shows in your queue again.
-                </p>
-              </>
+              <ReturnButton
+                label="Stop ignoring"
+                busy={busy}
+                onClick={onReturnToNeedsTriage}
+                description={
+                  <>
+                    Brings this back into{" "}
+                    <span className="font-medium text-foreground/85">Needs triage</span>{" "}
+                    so it shows in your queue again.
+                  </>
+                }
+              />
             ) : signal.triage_state === "deferred" ? (
-              <>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="justify-start gap-2"
-                  disabled={busy}
-                  onClick={onReturnToNeedsTriage}
-                >
-                  <FontAwesomeIcon icon={faArrowRotateLeft} className="size-3.5" />
-                  Resume triage
-                </Button>
-                <p className="text-[11px] leading-snug text-muted-foreground/90">
-                  Undoes defer and returns this to{" "}
-                  <span className="font-medium text-foreground/85">
-                    Needs triage
-                  </span>
-                  .
-                </p>
-              </>
+              <ReturnButton
+                label="Resume triage"
+                busy={busy}
+                onClick={onReturnToNeedsTriage}
+                description={
+                  <>
+                    Undoes defer and returns this to{" "}
+                    <span className="font-medium text-foreground/85">Needs triage</span>.
+                  </>
+                }
+              />
             ) : (
               <>
                 <Button
@@ -279,7 +284,7 @@ export function SignalDetailPanel({
                 key={signal.id}
                 value={assignValue}
                 onValueChange={(v) => {
-                  if (v && signal)
+                  if (v)
                     setAssignPick((prev) => ({ ...prev, [signal.id]: v }));
                 }}
               >

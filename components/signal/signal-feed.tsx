@@ -7,6 +7,7 @@ import { URGENCY_ORDER } from "@/lib/types";
 import { groupByUrgency, showFeedLensTag } from "@/lib/filter-signals";
 import {
   feedSourcePillClass,
+  formatUrgencyLabel,
   signalTagLabel,
   sourceLabel,
   urgencyFeedCardChrome,
@@ -31,10 +32,6 @@ type Props = {
 };
 
 const MAX_SOURCES_VISIBLE = 2;
-
-function formatUrgencyHeading(u: string): string {
-  return u.charAt(0).toUpperCase() + u.slice(1);
-}
 
 function emptyCopy(info: FeedEmptyInfo): { title: string; body: string } {
   switch (info.kind) {
@@ -151,7 +148,7 @@ export function SignalFeed({
                     aria-hidden
                   />
                   <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    {formatUrgencyHeading(u)}
+                    {formatUrgencyLabel(u)}
                   </h2>
                   <span className="text-[11px] text-muted-foreground/80">
                     {list.length}

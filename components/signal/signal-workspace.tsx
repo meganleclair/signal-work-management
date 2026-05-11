@@ -16,7 +16,10 @@ import { SignalFeed } from "@/components/signal/signal-feed";
 import { SignalDetailPanel } from "@/components/signal/signal-detail-panel";
 import { SignalToolbar } from "@/components/signal/signal-toolbar";
 import { WorkspaceBar } from "@/components/signal/workspace-bar";
-import { sourceLabel } from "@/components/signal/urgency-styles";
+import {
+  sourceLabel,
+  workspaceLabel as getWorkspaceLabel,
+} from "@/components/signal/urgency-styles";
 import { Button } from "@/components/ui/button";
 import {
   filterBySearchQuery,
@@ -33,7 +36,91 @@ import {
   setTriageState,
 } from "@/lib/signal-service";
 import type { Signal, SourceType, TriageView, Workspace } from "@/lib/types";
-import { SOURCE_TYPE_ORDER, WORKSPACES } from "@/lib/types";
+import { SOURCE_TYPE_ORDER } from "@/lib/types";
+
+type TriageActionsProps = {
+  signal: Signal;
+  busy: boolean;
+  onActNow: () => void;
+  onReturnToNeedsTriage: () => void;
+  onDefer: () => void;
+  onIgnore: () => void;
+  afterAction?: () => void;
+};
+
+function SignalTriageActions({
+  signal,
+  busy,
+  onActNow,
+  onReturnToNeedsTriage,
+  onDefer,
+  onIgnore,
+  afterAction,
+}: TriageActionsProps) {
+  const isPrimary =
+    signal.triage_state === "needs_triage" ||
+    signal.triage_state === "assigned";
+  return (
+    <div className="flex flex-col gap-2">
+      {isPrimary ? (
+        <Button
+          type="button"
+          className="justify-start gap-2"
+          disabled={busy}
+          onClick={() => {
+            onActNow();
+            afterAction?.();
+          }}
+        >
+          <FontAwesomeIcon icon={faBolt} className="size-3.5" />
+          Act now
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          variant="secondary"
+          className="justify-start gap-2"
+          disabled={busy}
+          onClick={() => {
+            onReturnToNeedsTriage();
+            afterAction?.();
+          }}
+        >
+          <FontAwesomeIcon icon={faArrowRotateLeft} className="size-3.5" />
+          Return to triage
+        </Button>
+      )}
+      <div className="grid grid-cols-2 gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          className="gap-2"
+          disabled={busy || signal.triage_state === "deferred"}
+          onClick={() => {
+            onDefer();
+            afterAction?.();
+          }}
+        >
+          <FontAwesomeIcon icon={faClock} className="size-3.5" />
+          Defer
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="gap-2"
+          disabled={busy || signal.triage_state === "ignored"}
+          onClick={() => {
+            onIgnore();
+            afterAction?.();
+          }}
+        >
+          <FontAwesomeIcon icon={faEyeSlash} className="size-3.5" />
+          Ignore
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export function SignalWorkspace() {
   const [signals, setSignals] = useState<Signal[]>([]);
@@ -49,6 +136,7 @@ export function SignalWorkspace() {
   ]);
   const [lastUndo, setLastUndo] = useState<{ snapshot: Signal } | null>(null);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  const [resetPending, setResetPending] = useState(false);
 
   const signalsRef = useRef<Signal[]>([]);
   useEffect(() => {
@@ -60,8 +148,7 @@ export function SignalWorkspace() {
     if (!selectedId) setMobileSheetOpen(false);
   }, [selectedId]);
 
-  const workspaceLabel =
-    WORKSPACES.find((w) => w.id === workspace)?.label ?? workspace;
+  const workspaceLabel = getWorkspaceLabel(workspace);
 
   const reload = useCallback(async () => {
     setError(null);
@@ -322,14 +409,12 @@ export function SignalWorkspace() {
     []
   );
 
-  const resetDemo = useCallback(async () => {
-    if (
-      !window.confirm(
-        "Reset all triage data to the original demo set? Your current data will be replaced."
-      )
-    ) {
-      return;
-    }
+  const resetDemo = useCallback(() => {
+    setResetPending(true);
+  }, []);
+
+  const confirmReset = useCallback(async () => {
+    setResetPending(false);
     setError(null);
     try {
       const next = await resetToSeed();
@@ -369,6 +454,32 @@ export function SignalWorkspace() {
             <FontAwesomeIcon icon={faArrowRotateLeft} className="size-3.5" />
             Undo
           </Button>
+        </div>
+      ) : null}
+      {resetPending ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-destructive/25 bg-destructive/8 px-4 py-2 text-sm sm:px-6">
+          <span className="text-foreground/90">
+            Reset all triage data to the original demo set?{" "}
+            <span className="text-muted-foreground">This cannot be undone.</span>
+          </span>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setResetPending(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={() => void confirmReset()}
+            >
+              Reset
+            </Button>
+          </div>
         </div>
       ) : null}
       <div className="flex min-h-0 flex-1 overflow-hidden">
@@ -476,73 +587,19 @@ export function SignalWorkspace() {
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col gap-2 border-t border-border/40 px-5 py-4 pb-8">
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/85">
+            <div className="border-t border-border/40 px-5 py-4 pb-8">
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/85">
                 Actions
               </p>
-              {selected.triage_state === "needs_triage" ||
-              selected.triage_state === "assigned" ? (
-                <Button
-                  type="button"
-                  className="justify-start gap-2"
-                  disabled={busyId === selected.id}
-                  onClick={() => {
-                    handleActNow();
-                    setMobileSheetOpen(false);
-                  }}
-                >
-                  <FontAwesomeIcon icon={faBolt} className="size-3.5" />
-                  Act now
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="justify-start gap-2"
-                  disabled={busyId === selected.id}
-                  onClick={() => {
-                    handleReturnToNeedsTriage();
-                    setMobileSheetOpen(false);
-                  }}
-                >
-                  <FontAwesomeIcon icon={faArrowRotateLeft} className="size-3.5" />
-                  Return to triage
-                </Button>
-              )}
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="gap-2"
-                  disabled={
-                    busyId === selected.id ||
-                    selected.triage_state === "deferred"
-                  }
-                  onClick={() => {
-                    handleDefer();
-                    setMobileSheetOpen(false);
-                  }}
-                >
-                  <FontAwesomeIcon icon={faClock} className="size-3.5" />
-                  Defer
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="gap-2"
-                  disabled={
-                    busyId === selected.id ||
-                    selected.triage_state === "ignored"
-                  }
-                  onClick={() => {
-                    handleIgnore();
-                    setMobileSheetOpen(false);
-                  }}
-                >
-                  <FontAwesomeIcon icon={faEyeSlash} className="size-3.5" />
-                  Ignore
-                </Button>
-              </div>
+              <SignalTriageActions
+                signal={selected}
+                busy={busyId === selected.id}
+                onActNow={handleActNow}
+                onReturnToNeedsTriage={handleReturnToNeedsTriage}
+                onDefer={handleDefer}
+                onIgnore={handleIgnore}
+                afterAction={() => setMobileSheetOpen(false)}
+              />
             </div>
           </div>
         </div>

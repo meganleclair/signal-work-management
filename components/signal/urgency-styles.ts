@@ -1,17 +1,8 @@
 import type { SignalTag, SourceType, Urgency, Workspace } from "@/lib/types";
 
-export function urgencyClasses(u: Urgency): string {
-  switch (u) {
-    case "critical":
-      return "border-rose-200/80 bg-rose-50 text-rose-900 dark:border-rose-900/40 dark:bg-rose-950/40 dark:text-rose-100";
-    case "high":
-      return "border-amber-200/80 bg-amber-50 text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/35 dark:text-amber-50";
-    case "medium":
-      return "border-sky-200/80 bg-sky-50 text-sky-950 dark:border-sky-900/40 dark:bg-sky-950/35 dark:text-sky-50";
-    case "low":
-    default:
-      return "border-border bg-muted/50 text-muted-foreground";
-  }
+/** Capitalize the first letter of an urgency or any short label. */
+export function formatUrgencyLabel(u: string): string {
+  return u.charAt(0).toUpperCase() + u.slice(1);
 }
 
 export function sourceClasses(type: SourceType): string {
