@@ -1,15 +1,6 @@
 import { NextResponse } from "next/server";
+import { TEAM_NAMES, type TeamName } from "@/lib/team";
 import type { Signal, Urgency } from "@/lib/types";
-
-const TEAM_NAMES = [
-  "Alex Rivera",
-  "Jordan Lee",
-  "Sam Okonkwo",
-  "Taylor Chen",
-  "Morgan Patel",
-] as const;
-
-type TeamName = (typeof TEAM_NAMES)[number];
 
 export interface TriageAssistResult {
   urgency: Urgency;

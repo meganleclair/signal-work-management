@@ -53,7 +53,7 @@ export function SignalSidebar({
   const { dark, toggle } = useTheme();
 
   return (
-    <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
+    <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex">
       {/* Brand */}
       <div className="flex items-center gap-2.5 px-4 py-5">
         <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/8 ring-1 ring-foreground/10">

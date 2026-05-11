@@ -533,7 +533,7 @@ export function SignalWorkspace() {
           The desktop detail panel (hidden md:flex) takes over at md+.        */}
       {mobileSheetOpen && selected ? (
         <div
-          className="fixed inset-0 z-50 flex flex-col justify-end bg-foreground/20 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-50 flex flex-col justify-end bg-foreground/20 backdrop-blur-sm lg:hidden"
           onClick={() => setMobileSheetOpen(false)}
         >
           <div

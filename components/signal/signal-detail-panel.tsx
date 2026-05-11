@@ -30,16 +30,9 @@ import {
   sourceLabel,
   workspaceLabel,
 } from "@/components/signal/urgency-styles";
+import { TEAM } from "@/lib/team";
 import { cn } from "@/lib/utils";
 import type { TriageAssistResult } from "@/app/api/triage-assist/route";
-
-const TEAM = [
-  "Alex Rivera",
-  "Jordan Lee",
-  "Sam Okonkwo",
-  "Taylor Chen",
-  "Morgan Patel",
-];
 
 type AssistPhase =
   | { kind: "idle" }
@@ -164,7 +157,7 @@ export function SignalDetailPanel({
 
   if (!signal) {
     return (
-      <aside className="hidden h-full w-[320px] shrink-0 flex-col border-l border-border/50 bg-card/20 md:flex lg:w-[380px]">
+      <aside className="hidden h-full w-[320px] shrink-0 flex-col border-l border-border/50 bg-card/20 lg:flex lg:w-[380px]">
         <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
           <p className="text-sm font-medium text-foreground">No signal selected</p>
           <p className="text-sm text-muted-foreground">
@@ -178,7 +171,7 @@ export function SignalDetailPanel({
   return (
     <aside
       className={cn(
-        "hidden h-full w-[320px] shrink-0 flex-col bg-card/25 md:flex lg:w-[380px]",
+        "hidden h-full w-[320px] shrink-0 flex-col bg-card/25 lg:flex lg:w-[380px]",
         "border-l border-border/45"
       )}
     >
@@ -227,20 +220,24 @@ export function SignalDetailPanel({
 
           <section className="space-y-2">
             <h3 className={PANEL_LABEL}>Sources</h3>
-            <div className="flex flex-wrap gap-1.5">
-              {signal.sources.map((src, i) => (
-                <span
-                  key={`${signal.id}-d-${i}`}
-                  className={cn(
-                    "inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium",
-                    sourceClasses(src.type)
-                  )}
-                >
-                  {sourceLabel(src.type)}
-                  <span className="ml-1 opacity-80">· {src.label}</span>
-                </span>
-              ))}
-            </div>
+            {signal.sources.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {signal.sources.map((src, i) => (
+                  <span
+                    key={`${signal.id}-d-${i}`}
+                    className={cn(
+                      "inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium",
+                      sourceClasses(src.type)
+                    )}
+                  >
+                    {sourceLabel(src.type)}
+                    <span className="ml-1 opacity-80">· {src.label}</span>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground/60">No sources recorded.</p>
+            )}
           </section>
 
           <Separator className="bg-border/50" />
