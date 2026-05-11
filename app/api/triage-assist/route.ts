@@ -27,10 +27,10 @@ function isTeamName(v: unknown): v is TeamName {
 }
 
 export async function POST(req: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.SIGNAL_ANTHROPIC_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY is not configured." },
+      { error: "SIGNAL_ANTHROPIC_KEY is not configured." },
       { status: 503 }
     );
   }
