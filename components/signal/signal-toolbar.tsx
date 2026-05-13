@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   faDownload,
+  faEllipsisVertical,
   faRotateRight,
   faSearch,
   faUpload,
@@ -34,7 +35,9 @@ export function SignalToolbar({
   const fileRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!searchOpen) return;
@@ -61,6 +64,25 @@ export function SignalToolbar({
     };
   }, [searchOpen]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDocMouseDown = (e: MouseEvent) => {
+      const el = menuRef.current;
+      if (el && !el.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onDocMouseDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocMouseDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
+
   const searchActive = Boolean(searchQuery.trim());
 
   return (
@@ -77,48 +99,7 @@ export function SignalToolbar({
         )}
         aria-hidden={searchOpen}
       >
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-          onClick={onExport}
-        >
-          <FaIcon icon={faDownload} className="size-3.5" />
-          Export
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-          onClick={() => fileRef.current?.click()}
-        >
-          <FaIcon icon={faUpload} className="size-3.5" />
-          Import
-        </Button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="application/json,.json"
-          className="sr-only"
-          aria-hidden
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) onImportFile(f);
-            e.target.value = "";
-          }}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-          onClick={onResetDemo}
-        >
-          <FaIcon icon={faRotateRight} className="size-3.5" />
-          Restore defaults
-        </Button>
+        {/* Search */}
         <Button
           type="button"
           variant={searchActive ? "secondary" : "outline"}
@@ -133,6 +114,65 @@ export function SignalToolbar({
         >
           <FaIcon icon={faSearch} className="size-3.5" />
         </Button>
+
+        {/* Overflow menu — export / import / reset */}
+        <div ref={menuRef} className="relative">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            aria-label="More options"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <FaIcon icon={faEllipsisVertical} className="size-3.5" />
+          </Button>
+
+          {menuOpen && (
+            <div className="absolute right-0 top-full z-30 mt-1.5 min-w-[11rem] rounded-lg border border-border/60 bg-background shadow-md ring-1 ring-foreground/[0.05]">
+              <div className="py-1">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-foreground/80 hover:bg-muted/60 hover:text-foreground"
+                  onClick={() => { onExport(); setMenuOpen(false); }}
+                >
+                  <FaIcon icon={faDownload} className="size-3.5 shrink-0 text-muted-foreground" />
+                  Export workspace
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-foreground/80 hover:bg-muted/60 hover:text-foreground"
+                  onClick={() => { fileRef.current?.click(); setMenuOpen(false); }}
+                >
+                  <FaIcon icon={faUpload} className="size-3.5 shrink-0 text-muted-foreground" />
+                  Import backup
+                </button>
+                <div className="my-1 h-px bg-border/60" />
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                  onClick={() => { onResetDemo(); setMenuOpen(false); }}
+                >
+                  <FaIcon icon={faRotateRight} className="size-3.5 shrink-0" />
+                  Reset to defaults
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <input
+          ref={fileRef}
+          type="file"
+          accept="application/json,.json"
+          className="sr-only"
+          aria-hidden
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onImportFile(f);
+            e.target.value = "";
+          }}
+        />
       </div>
 
       {searchOpen ? (

@@ -422,7 +422,7 @@ export function SignalDetailPanel({
                   onClick={onActNow}
                 >
                   <FaIcon icon={faBolt} className="size-3.5" />
-                  Act now
+                  Resolve
                 </Button>
                 <p className="text-[11px] leading-snug text-muted-foreground/90">
                   Confirms you're acting on this. It moves to{" "}

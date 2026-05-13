@@ -73,7 +73,7 @@ function SignalTriageActions({
           }}
         >
           <FaIcon icon={faBolt} className="size-3.5" />
-          Act now
+          Resolve
         </Button>
       ) : (
         <Button
@@ -508,6 +508,7 @@ export function SignalWorkspace() {
               <div className="min-h-0 flex-1">
                 <SignalFeed
                   workspace={workspace}
+                  view={view}
                   signals={filtered}
                   selectedId={selectedId}
                   onSelect={handleSelect}

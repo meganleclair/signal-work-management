@@ -25,11 +25,24 @@ export type FeedEmptyInfo =
 
 type Props = {
   workspace: Workspace;
+  view: TriageView;
   signals: Signal[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   emptyInfo: FeedEmptyInfo | null;
 };
+
+function feedTitle(view: TriageView): string {
+  switch (view) {
+    case "all": return "All signals";
+    case "needs_triage": return "Needs triage";
+    case "assigned": return "Assigned";
+    case "deferred": return "Deferred";
+    case "ignored": return "Ignored";
+    case "resolved": return "Resolved";
+    default: return "Signals";
+  }
+}
 
 const MAX_SOURCES_VISIBLE = 2;
 
@@ -103,6 +116,7 @@ function viewEmptyMessage(
 
 export function SignalFeed({
   workspace,
+  view,
   signals,
   selectedId,
   onSelect,
@@ -117,7 +131,7 @@ export function SignalFeed({
       <div className="flex flex-col gap-10 px-6 py-8 pb-20">
         <header className="space-y-1">
           <h1 className="text-xl font-semibold tracking-tight text-foreground">
-            Incoming signals
+            {feedTitle(view)}
           </h1>
         </header>
 
@@ -230,14 +244,6 @@ export function SignalFeed({
                                   ) : null}
                                 </div>
                               </div>
-                              <p className="text-[11px] leading-snug text-muted-foreground/78">
-                                <span className="text-muted-foreground/68">
-                                  Recommended owner:
-                                </span>{" "}
-                                <span className="font-medium text-foreground/88">
-                                  {s.suggested_owner ?? "Unassigned"}
-                                </span>
-                              </p>
                             </div>
                           </CardContent>
                         </Card>

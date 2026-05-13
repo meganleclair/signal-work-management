@@ -189,6 +189,36 @@ export const INITIAL_SIGNALS: Signal[] = [
     ],
   },
   {
+    id: "a1000000-0000-4000-8000-000000000026",
+    title: "GDPR data subject request — 30-day response deadline Thursday",
+    why_it_matters:
+      "Regulatory deadline is non-negotiable; missing it opens Vela to formal complaint and fines under Article 77.",
+    urgency: "high",
+    suggested_owner: "Jordan Lee",
+    assignee: null,
+    triage_state: "needs_triage",
+    workspace: "legal",
+    signal_tag: "legal",
+    sources: [
+      { type: "email", label: "privacy@vela.io" },
+      { type: "form", label: "DSR intake portal" },
+    ],
+    related_inputs: [
+      {
+        snippet:
+          "Request covers all personal data held on the subject — export + deletion confirmation required within 30 days of Apr 3.",
+        from: "Privacy inbox",
+        at: "Apr 3",
+      },
+      {
+        snippet:
+          "Data engineering confirmed export is ready; legal sign-off needed before we send.",
+        from: "Slack #privacy",
+        at: "Apr 11",
+      },
+    ],
+  },
+  {
     id: "a1000000-0000-4000-8000-000000000002",
     title: "Design debt: self-serve checkout flow inconsistencies",
     why_it_matters:
@@ -292,6 +322,36 @@ export const INITIAL_SIGNALS: Signal[] = [
     ],
   },
   {
+    id: "a1000000-0000-4000-8000-000000000027",
+    title: "Slack workspace over seat limit — billing auto-paused new invites",
+    why_it_matters:
+      "Three pending contractor invites are blocked; IT and Engineering leads can't add people until the plan is upgraded or seats freed.",
+    urgency: "high",
+    suggested_owner: "Taylor Chen",
+    assignee: null,
+    triage_state: "needs_triage",
+    workspace: "operations",
+    signal_tag: "product",
+    sources: [
+      { type: "email", label: "billing@slack.com" },
+      { type: "slack", label: "#it-ops" },
+    ],
+    related_inputs: [
+      {
+        snippet:
+          "We're at 247/250 seats — three invite links sent this week bounced with a billing gate error.",
+        from: "IT Slack",
+        at: "Apr 12",
+      },
+      {
+        snippet:
+          "Options: upgrade to the next tier ($420/mo delta) or audit inactive accounts — 15 flagged by IT as candidates.",
+        from: "IT audit note",
+        at: "Apr 12",
+      },
+    ],
+  },
+  {
     id: "a1000000-0000-4000-8000-000000000006",
     title: "Team offsite dates — decision needed by EOW",
     why_it_matters:
@@ -346,8 +406,8 @@ export const INITIAL_SIGNALS: Signal[] = [
       "Strong senior design candidate at risk of a slow decision; feedback is split across Greenhouse, Slack, and a shared doc.",
     urgency: "medium",
     suggested_owner: "Alex Rivera",
-    assignee: "Alex Rivera",
-    triage_state: "assigned",
+    assignee: null,
+    triage_state: "needs_triage",
     workspace: "operations",
     signal_tag: "product",
     sources: [
@@ -561,8 +621,8 @@ export const INITIAL_SIGNALS: Signal[] = [
       "Legal owes a published summary to the exec team; the comment window closes before the next exec review.",
     urgency: "medium",
     suggested_owner: "Jordan Lee",
-    assignee: null,
-    triage_state: "deferred",
+    assignee: "Jordan Lee",
+    triage_state: "assigned",
     workspace: "legal",
     signal_tag: "legal",
     sources: [
@@ -596,6 +656,36 @@ export const INITIAL_SIGNALS: Signal[] = [
           "No conflicting marks found in primary jurisdictions — Vela Pulse is clear to use.",
         from: "Outside counsel memo",
         at: "Apr 1",
+      },
+    ],
+  },
+  {
+    id: "a1000000-0000-4000-8000-000000000028",
+    title: "Meridian Health expansion — champion leaving next month",
+    why_it_matters:
+      "Our main Meridian contact is departing; without a warm handoff, the expansion conversation stalls and the renewal relationship resets.",
+    urgency: "high",
+    suggested_owner: "Taylor Chen",
+    assignee: null,
+    triage_state: "needs_triage",
+    workspace: "sales",
+    signal_tag: "product",
+    sources: [
+      { type: "email", label: "champion@meridianhealth.com" },
+      { type: "slack", label: "#account-meridian" },
+    ],
+    related_inputs: [
+      {
+        snippet:
+          "Sarah confirmed her last day is May 2 — she offered to intro us to her successor but hasn't done it yet.",
+        from: "Email thread",
+        at: "Apr 11",
+      },
+      {
+        snippet:
+          "New stakeholder is in procurement, not operations — different priorities and no product context yet.",
+        from: "Account Slack",
+        at: "Apr 11",
       },
     ],
   },
